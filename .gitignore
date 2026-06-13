@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# GraphiQuest generated outputs (rebuilt locally; never committed)
+/graphify-out/
+
+# Optional LOCAL taxonomy override (private; never ship)
+graphiquest.taxonomy.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

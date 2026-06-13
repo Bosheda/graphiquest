@@ -1,0 +1,40 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "built_at_commit": "fixture0001",
+  "nodes": [
+    {"id": "comp_button", "label": "Button.jsx", "source_file": "src/components/Button.jsx", "community": 1},
+    {"id": "comp_modal", "label": "Modal.jsx", "source_file": "src/components/Modal.jsx", "community": 1},
+    {"id": "style_main", "label": "main.css", "source_file": "src/styles/main.css", "community": 1},
+    {"id": "api_server", "label": "server.js", "source_file": "src/api/server.js", "community": 2},
+    {"id": "svc_auth", "label": "auth.js", "source_file": "src/services/auth.js", "community": 2},
+    {"id": "model_user", "label": "user.py", "source_file": "src/models/user.py", "community": 2},
+    {"id": "script_build", "label": "build.sh", "source_file": "scripts/build.sh", "community": 4},
+    {"id": "doc_readme", "label": "README.md", "source_file": "docs/README.md", "community": 3},
+    {"id": "doc_arch", "label": "architecture.md", "source_file": "docs/architecture.md", "community": 3},
+    {"id": "cfg_pkg", "label": "package.json", "source_file": "package.json", "community": 4},
+    {"id": "test_auth", "label": "auth.test.js", "source_file": "tests/auth.test.js", "community": 2},
+    {"id": "data_seed", "label": "seed.sql", "source_file": "data/seed.sql", "community": 2},
+    {"id": "asset_logo", "label": "logo.png", "source_file": "public/logo.png", "community": 3},
+    {"id": "wf_ci", "label": "ci.yml", "source_file": ".github/workflows/ci.yml", "community": 4},
+    {"id": "other_notes", "label": "notes.bin", "source_file": "misc/notes.bin", "community": 5},
+    {"id": "noise_nm", "label": "index.js", "source_file": "node_modules/react/index.js", "community": 9},
+    {"id": "noise_min", "label": "lib.min.js", "source_file": "src/vendor/lib.min.js", "community": 9},
+    {"id": "noise_go", "label": "GRAPH_REPORT.md", "source_file": "graphify-out/GRAPH_REPORT.md", "community": 9},
+    {"id": "noise_next", "label": "chunk.js", "source_file": ".next/static/chunk.js", "community": 9}
+  ],
+  "links": [
+    {"source": "comp_button", "target": "style_main", "weight": 2.0, "relation": "imports"},
+    {"source": "comp_modal", "target": "comp_button", "weight": 0.5, "relation": "sibling"},
+    {"source": "comp_button", "target": "api_server", "weight": 1.5, "relation": "calls"},
+    {"source": "api_server", "target": "svc_auth", "weight": 2.0, "relation": "uses"},
+    {"source": "svc_auth", "target": "model_user", "weight": 1.0, "relation": "reads"},
+    {"source": "model_user", "target": "data_seed", "weight": 1.0, "relation": "maps"},
+    {"source": "doc_readme", "target": "doc_arch", "weight": 1.0, "relation": "links"},
+    {"source": "doc_arch", "target": "api_server", "weight": 0.5, "relation": "documents"},
+    {"source": "cfg_pkg", "target": "script_build", "weight": 1.0, "relation": "defines"},
+    {"source": "test_auth", "target": "svc_auth", "weight": 1.0, "relation": "tests"},
+    {"source": "doc_readme", "target": "asset_logo", "weight": 0.5, "relation": "embeds"}
+  ],
+  "hyperedges": []
+}

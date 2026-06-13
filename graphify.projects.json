@@ -1,0 +1,18 @@
+{
+  "$schema_note": "Graphify Dashboard local-first project registry. The dashboard generator (scripts/graphify_dashboard_mock.py) reads this file and bakes it into the page. Statuses are HONEST: 'ready' requires a real read-model on disk at build time and is demoted to 'graph_missing' if absent. Counts are never stored here -- the generator fills them from the live read-model for ready graphs only. Browser-side repo-path edits and user-added projects overlay this file via localStorage (clearly labeled 'saved locally in this browser') until a CLI/config-writer flow lands. showInTopBar/pinned control the top strip (display only -- Settings always shows everything; nothing is deleted by hiding). G5P.8: personal/demo entries removed -- this file ships with ONE default entry (the repo the dashboard runs from); everything else is user-added.",
+  "allowed_statuses": [
+    "ready",
+    "missing_repo_path",
+    "not_graphed",
+    "graph_missing",
+    "rebuild_required",
+    "repo_path_configured",
+    "pending",
+    "error",
+    "command_prepared",
+    "waiting_for_manual_run",
+    "generating",
+    "generated_pending_reload"
+  ],
+  "projects": []
+}

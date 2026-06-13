@@ -1,0 +1,53 @@
+{
+  "_README": [
+    "OPTIONAL local taxonomy override for GraphiQuest. Copy this file to",
+    "'graphiquest.taxonomy.local.json' (gitignored, never shipped) and edit it to",
+    "give YOUR repo a bespoke concept / slice / region vocabulary. With NO local",
+    "file present, GraphiQuest classifies every repo with the built-in GENERIC",
+    "taxonomy (Frontend / Backend / Scripts / Docs / Tests / Config / Data / Assets /",
+    "Workflows / Other + top-level-directory slices). This example is intentionally",
+    "GENERIC (a domain-oriented grouping) -- it ships only as documentation of the",
+    "schema; it is NOT loaded. See docs/GRAPHIQUEST_TAXONOMY.md.",
+    "Every key is optional. 'pattern'/'extra'/'path'/'label' are case-insensitive",
+    "regular expressions matched against the node's source path (or label)."
+  ],
+
+  "concepts": [
+    {"name": "auth", "pattern": "(^|/)(auth|login|session|identity)/", "match_label": false},
+    {"name": "billing", "pattern": "(^|/)(billing|payments?|invoices?)/", "match_label": false},
+    {"name": "ui", "pattern": "(^|/)(components?|ui|design-system)/", "match_label": false}
+  ],
+
+  "slices": [
+    {"id": "auth", "label": "Authentication", "purpose": "Login, sessions, identity.",
+     "concepts": ["auth"], "extra": "jwt|oauth|password"},
+    {"id": "billing", "label": "Billing & Payments", "purpose": "Checkout, invoices, payments.",
+     "concepts": ["billing"]},
+    {"id": "ui", "label": "Design System", "purpose": "Shared UI components.",
+     "concepts": ["ui"]}
+  ],
+
+  "hide": [
+    {"name": "generated-clients", "pattern": "(^|/)generated/"}
+  ],
+
+  "presets": {
+    "Overview": {"slice": null, "hideTests": true, "hideDocs": false, "labels": "26",
+      "hint": "Pick any slice; search the whole graph.", "trace": null},
+    "Auth flow": {"slice": "auth", "hideTests": true, "hideDocs": false, "labels": "26",
+      "hint": "Search: login, session, token.", "trace": ["LoginForm", "sessionStore"]}
+  },
+
+  "regions": [
+    {"id": "Authentication", "x": -510, "y": 80, "tag": "structural", "meaning": "Login, sessions, identity."},
+    {"id": "Billing & Payments", "x": -40, "y": 120, "tag": "structural", "meaning": "Checkout, invoices, payments."},
+    {"id": "Design System", "x": 380, "y": 110, "tag": "structural", "meaning": "Shared UI components."}
+  ],
+
+  "region_routes": [
+    {"concept": "auth", "region": "Authentication"},
+    {"concept": "billing", "region": "Billing & Payments"},
+    {"concept": "ui", "region": "Design System"},
+    {"path": "(^|/)api/", "region": "Billing & Payments"}
+  ]
+}
