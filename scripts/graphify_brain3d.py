@@ -125,10 +125,71 @@ for n in nodes:
     by_region.setdefault(rr, []).append(n)
     node_region[n["id"]] = rr
 
+# ---- G5S ADAPTIVE BRAIN LAYOUT (de-tuned from the DFL monorepo slot geometry) ----
+# Problem: REGION_SLOTS are fixed absolute lobe centers hand-fit to the DFL monorepo's
+# region balance, and they are assigned by LABEL order, not size. A generic/public repo
+# with fewer or lopsided regions fills only the first few slots -> the dominant lobe is
+# shoved to a corner and the rest scatter into islands with big empty gaps (and the
+# camera, also DFL-fit, frames the wrong box). Fix: when there is NO local custom
+# taxonomy override (i.e. the published/generic path), PACK the lobes into a brain-shaped
+# mass sized to THIS graph and FRAME the camera from the resulting bbox. The DFL local
+# custom view (a local taxonomy override is present) keeps the approved slots + camera.
+ADAPTIVE = not _CUSTOM_REGIONS
+LOBE_K = 15.0                     # lobe spatial radius = LOBE_K * sqrt(member count)
+MEET = 0.55                       # tangent center dist = (rA+rB)*MEET -> ~45% overlap = fused mass (few-lobe graphs stay fused after the x-stretch instead of splitting into a dumbbell)
+XSTRETCH, YSQUASH = 1.3, 1.0      # gentle side-profile widen (brain silhouette without pulling side-by-side lobes apart)
+lobe_r = {r: LOBE_K * math.sqrt(len(m)) for r, m in by_region.items()}
+
+if ADAPTIVE:
+    # Greedy center-seeking pack of heterogeneous lobe disks: biggest lobe at the core,
+    # each later lobe placed at the most-central tangent position that does not over-
+    # overlap an already-placed lobe. Deterministic (sort by size then id; fixed 4deg
+    # angular search), robust for ANY region count (1..N) and any balance -> a compact
+    # coherent brain whether the repo is small/sparse or large/dense.
+    order = sorted(by_region.keys(), key=lambda r: (-len(by_region[r]), r))
+    placed = {}
+    for r in order:
+        ri = lobe_r[r]
+        if not placed:
+            placed[r] = (0.0, 0.0)
+            continue
+        best = None
+        for pj, (px, py) in list(placed.items()):
+            d_target = (ri + lobe_r[pj]) * MEET
+            for a in range(0, 360, 4):
+                ang = math.radians(a)
+                x, y = px + d_target * math.cos(ang), py + d_target * math.sin(ang)
+                ok = True
+                for pk, (kx, ky) in placed.items():
+                    if pk == pj:
+                        continue
+                    if math.hypot(x - kx, y - ky) < (ri + lobe_r[pk]) * MEET * 0.985:
+                        ok = False
+                        break
+                if ok:
+                    score = math.hypot(x, y)
+                    if best is None or score < best[0] - 1e-6:
+                        best = (score, x, y)
+        placed[r] = (best[1], best[2]) if best else (0.0, 0.0)
+    # member-weighted recenter to origin, then ellipse-stretch + per-lobe hemisphere depth
+    _tw = sum(len(m) for m in by_region.values()) or 1
+    _gx = sum(placed[r][0] * len(by_region[r]) for r in placed) / _tw
+    _gy = sum(placed[r][1] * len(by_region[r]) for r in placed) / _tw
+    region_center = {}
+    for r, (x, y) in placed.items():
+        cz = min(150.0, max(55.0, 0.42 * lobe_r[r]))   # depth ~ lobe size (hemisphere amplitude)
+        region_center[r] = (round((x - _gx) * XSTRETCH, 1), round((y - _gy) * YSQUASH, 1), round(cz, 1))
+    LAYOUT_MODE = "adaptive-pack"
+else:
+    region_center = {r: (REGIONS[r][0], REGIONS[r][1], REGIONS[r][2]) for r in by_region}
+    LAYOUT_MODE = "custom-fixed"
+
 out_nodes, counts = [], {}
 for r, members in by_region.items():
-    cx, cy, cz, rim, fam_cell = REGIONS[r]
-    rmax = (16 if len(members) > 250 else 13) * math.sqrt(len(members))  # lobes meet: continuous hero mass
+    _slot = REGIONS[r]
+    rim, fam_cell = _slot[3], _slot[4]
+    cx, cy, cz = region_center[r]                       # packed (adaptive) or hand-tuned slot (custom)
+    rmax = lobe_r[r] if ADAPTIVE else (16 if len(members) > 250 else 13) * math.sqrt(len(members))  # lobes meet: continuous hero mass
     peripheral = r == FALLBACK_REGION
     for i, n in enumerate(members):  # members arrive degree-sorted: low i = hub = hot center
         t = h01(n["id"], "r")
@@ -255,6 +316,51 @@ for _sweep in range(10):
     if _moved == 0:
         break
 print(f"micro-separation: sweeps={_sweep_counts} (scale-aware hub-pair separations: {_hub_moved}; floor 14.0 / hub (sA+sB)*0.45)")
+
+# ---- G5S adaptive camera + shell framing (computed from the FINAL node bbox) ----
+# Same calibration constant for everyone: the approved DFL frame sat at distance 991
+# from a view-plane bounding radius of ~717 -> ratio 1.38. Applying that to THIS graph's
+# bbox makes the brain fill ~65-80% of a 16:9 viewport regardless of repo size. The DFL
+# custom path keeps the exact approved literals (visually identical).
+_xs = [n["x"] for n in out_nodes]; _ys = [n["y"] for n in out_nodes]; _zs = [n["z"] for n in out_nodes]
+BB = dict(minx=min(_xs), maxx=max(_xs), miny=min(_ys), maxy=max(_ys), minz=min(_zs), maxz=max(_zs))
+
+
+def _fmt(v):
+    """Int-clean number formatting so the custom path stays byte-identical to the old literals."""
+    return str(int(v)) if float(v) == int(v) else repr(round(float(v), 1))
+
+
+if ADAPTIVE:
+    _wsum = sum(max(1, n["deg"]) for n in out_nodes) or 1
+    _dcx = sum(n["x"] * max(1, n["deg"]) for n in out_nodes) / _wsum    # degree-weighted centroid (dense hub mass)
+    _dcy = sum(n["y"] * max(1, n["deg"]) for n in out_nodes) / _wsum
+    _dcz = sum(n["z"] * max(1, n["deg"]) for n in out_nodes) / _wsum
+    _bcx = (BB["minx"] + BB["maxx"]) / 2; _bcy = (BB["miny"] + BB["maxy"]) / 2; _bcz = (BB["minz"] + BB["maxz"]) / 2
+    # 50/50 blend with the geometric center: lean toward the dense mass for an
+    # interesting frame, but cap how far a hub-dominated region can pull the frame
+    # off-center (adversarial-grill finding: pure degree-weighting drifted ~7% on a
+    # hub-only graph; the blend halves that and stays robust for pathological balances).
+    LOOK_X = round(0.5 * _bcx + 0.5 * _dcx, 1)
+    LOOK_Y = round(0.5 * _bcy + 0.5 * _dcy, 1)
+    LOOK_Z = round(0.5 * _bcz + 0.5 * _dcz, 1)
+    _hw = (BB["maxx"] - BB["minx"]) / 2; _hh = (BB["maxy"] - BB["miny"]) / 2
+    _Rview = math.hypot(_hw, _hh)
+    CAM_DIST = max(420.0, _Rview * 1.38)
+    _DIR = (0.1413, 0.0404, 0.9891)                       # approved 3/4 view direction (DFL pos-look, normalized)
+    CAM_X = round(LOOK_X + _DIR[0] * CAM_DIST, 1); CAM_Y = round(LOOK_Y + _DIR[1] * CAM_DIST, 1); CAM_Z = round(LOOK_Z + _DIR[2] * CAM_DIST, 1)
+    CAM_FAR = round(max(6000.0, CAM_DIST * 2.2 + _Rview))
+    CAM_MAXD = round(CAM_DIST + _Rview * 2.0)
+    SHELL_SX = round(max(_hw, 80) * 1.18, 1); SHELL_SY = round(max(_hh, 60) * 1.18, 1)
+    SHELL_SZ = round(max(BB["maxz"] - BB["minz"], 180) / 2 * 1.3, 1)
+    SHELL_PX = round((BB["minx"] + BB["maxx"]) / 2, 1); SHELL_PY = round((BB["miny"] + BB["maxy"]) / 2, 1); SHELL_PZ = round((BB["minz"] + BB["maxz"]) / 2, 1)
+else:
+    CAM_X, CAM_Y, CAM_Z = 80, 50, 980                     # exact approved DFL frame (byte-identical)
+    LOOK_X, LOOK_Y, LOOK_Z = -60, 10, 0
+    CAM_DIST = math.hypot(CAM_X - LOOK_X, CAM_Y - LOOK_Y, CAM_Z - LOOK_Z)
+    CAM_FAR, CAM_MAXD = 6000, 4800
+    SHELL_SX, SHELL_SY, SHELL_SZ = 660, 480, 440
+    SHELL_PX, SHELL_PY, SHELL_PZ = -60, 15, 0
 
 links = [dict(source=e["source"], target=e["target"], w=(w := link_tier(e)),
               c=link_rgba(e, w), hc=link_highlight(e),
@@ -504,7 +610,7 @@ window.addEventListener('message', e => {{
 // Hero first-frame: lookAt = dense-mass center of the side-profile oval (x ~-60),
 // camera slightly right/above for 3/4 depth, distance tuned so the brain fills
 // ~65-80% of the viewport (composition pass; not a random close-up).
-G.cameraPosition({{x: 80, y: 50, z: 980}}, {{x: -60, y: 10, z: 0}});
+G.cameraPosition({{x: {_fmt(CAM_X)}, y: {_fmt(CAM_Y)}, z: {_fmt(CAM_Z)}}}, {{x: {_fmt(LOOK_X)}, y: {_fmt(LOOK_Y)}, z: {_fmt(LOOK_Z)}}});
 // G5N.2 H1 fix (workflow-verified): three-render-objects defaults are near=0.1 and
 // far=skyRadius*2.5=125000, which quantize the 24-bit depth buffer to ~0.6 world
 // units at orbit depth -- a depth crossing of two overlapping cores then sits in a
@@ -543,13 +649,22 @@ function flyTo(px, py, pz, lx, ly, lz, minMs, maxMs) {{
   FLY.id = requestAnimationFrame(step);
 }}
 c.addEventListener('start', cancelFly);               // manual grab takes over instantly
-const fixCam = () => {{ cam.near = 5; cam.far = 6000; cam.updateProjectionMatrix(); c.maxDistance = 4800; }};
+const fixCam = () => {{ cam.near = 5; cam.far = {_fmt(CAM_FAR)}; cam.updateProjectionMatrix(); c.maxDistance = {_fmt(CAM_MAXD)}; }};
 fixCam();
 // three-render-objects assigns far=skyRadius*2.5 during ASYNC init AFTER this inline
 // code (probed live: near=5 survived, far reverted to 125000) -- re-assert post-init.
 setTimeout(fixCam, 800); setTimeout(fixCam, 2500);
 window.__brainCam = () => ({{ near: cam.near, far: cam.far, dist: cam.position.distanceTo(c.target) }});  // QA probe
-c.target.set(-60, 10, 0);
+// G5S layout QA hook: active regions / displayed nodes / post-layout bbox / camera
+// distance / chosen packing mode -- lets automated QA assert the brain is framed.
+window.__brainLayoutDebug = () => ({{
+  mode: '{LAYOUT_MODE}', adaptive: {str(ADAPTIVE).lower()},
+  activeRegions: {len(counts)}, displayedNodes: {len(out_nodes)},
+  bbox: {{ x: [{_fmt(BB["minx"])}, {_fmt(BB["maxx"])}], y: [{_fmt(BB["miny"])}, {_fmt(BB["maxy"])}], z: [{_fmt(BB["minz"])}, {_fmt(BB["maxz"])}] }},
+  look: {{ x: {_fmt(LOOK_X)}, y: {_fmt(LOOK_Y)}, z: {_fmt(LOOK_Z)} }},
+  bakedDist: {_fmt(round(CAM_DIST))}, camDist: Math.round(cam.position.distanceTo(c.target))
+}});
+c.target.set({_fmt(LOOK_X)}, {_fmt(LOOK_Y)}, {_fmt(LOOK_Z)});
 
 // ---- premium backdrop + containment shell (G5D premium pass) ----
 // Backdrop: the operator-APPROVED v2 obsidian plate (ignored staging; asset-commit
@@ -563,8 +678,8 @@ import('https://esm.sh/three@0.183.0').then(({{ SphereGeometry, Mesh, MeshBasicM
   const shell = new Mesh(new SphereGeometry(1, 48, 32), new MeshBasicMaterial({{
     color: 0x06090e, transparent: true, opacity: 0.22, side: BackSide, depthWrite: false,
   }}));
-  shell.scale.set(660, 480, 440);             // wraps the side-profile oval (x -632..513, y -412..453)
-  shell.position.set(-60, 15, 0);
+  shell.scale.set({_fmt(SHELL_SX)}, {_fmt(SHELL_SY)}, {_fmt(SHELL_SZ)});   // wraps the (adaptive or DFL-fixed) brain bbox
+  shell.position.set({_fmt(SHELL_PX)}, {_fmt(SHELL_PY)}, {_fmt(SHELL_PZ)});
   shell.renderOrder = -2;
   G.scene().add(shell);
 }});
@@ -755,7 +870,7 @@ const paint = () => {{}};
 function resetView() {{                                // restore the hero first-load frame
   SELECTED = null; refreshSelection(); postSelected();
   G.linkVisibility(G.linkVisibility());
-  flyTo(80, 50, 980, -60, 10, 0, RESET_FLY_MIN_MS, RESET_FLY_MAX_MS);
+  flyTo({_fmt(CAM_X)}, {_fmt(CAM_Y)}, {_fmt(CAM_Z)}, {_fmt(LOOK_X)}, {_fmt(LOOK_Y)}, {_fmt(LOOK_Z)}, RESET_FLY_MIN_MS, RESET_FLY_MAX_MS);
   console.log('[brain] resetView');                    // NOTE: pause state intentionally untouched
 }}
 window.__brainReset = resetView;                       // QA hook (same path as the button)
