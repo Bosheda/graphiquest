@@ -1,54 +1,55 @@
 # GraphiQuest
 
-> **GraphiQuest turns any repo into a local 3D Hivemind you can explore, audit, and query.**
+> **GraphiQuest helps you find the node that matters.**
 >
-> Map the repo with Graphify. Explore it in Hivemind. Run Hunter. Jump to the node that matters.
+> Map the repo with Graphify. Explore it in Hivemind. Run Hunter. Trace the finding back to the connected code path.
 
-**GraphiQuest** — a local-first knowledge-graph dashboard for your codebases.
-Scan a repo with the open-source [Graphify](https://github.com/safishamsi/graphify)
-scanner (by [safishamsi](https://github.com/safishamsi), MIT — full credit), then
-explore it as a living **3D molten-brain Hivemind** or a structural **2D explorer**,
-audit it with **Hunter**, read findings in **Reports**, **Trace** paths between
-files, and ask it questions — all answered from the local graph, with no cloud,
-no credentials, and no agent calls.
+![Find the node that matters](docs/assets/graphiquest-hivemind-node-selected.png)
+*Find the node that matters — Hunter surfaces the signal, Trace jumps into the Hivemind, and GraphiQuest lights the connected code path. (Example public-repo graph: [fastapi/fastapi](https://github.com/fastapi/fastapi) — not GraphiQuest's own source.)*
 
-> Status: early but usable — read-only; your code is never modified or uploaded.
-> Built to be **independently usable** and not tied to any host application.
+**GraphiQuest** is a **local-first** 3D knowledge-graph dashboard for codebases. The open-source
+[Graphify](https://github.com/safishamsi/graphify) scanner (by [safishamsi](https://github.com/safishamsi), MIT)
+maps the repo; GraphiQuest turns that map into a **Hivemind** you can explore, audit with **Hunter**, and
+**Trace** from a finding to the exact code path — all from the local graph. No cloud, no credentials; your
+code never leaves your machine.
 
-## The needle-in-a-haystack problem
+> Status: early but usable · read-only (your code is never modified or uploaded) · **built on Graphify, not a fork of it**.
 
-GraphiQuest is built for the **"needle in a haystack"** problem in AI-assisted codebases.
+## Why GraphiQuest
 
-Instead of asking a model to blindly read everything, **Graphify maps the repo first**.
-GraphiQuest turns that map into a **Hivemind** you can explore, query, and audit. **Hunter**
-looks for disconnected areas, orphan candidates, likely missing relationships, and
-incomplete flows. When something looks suspicious, **Trace** jumps you straight back into
-the graph so you can inspect the node and its connected path before asking Claude Code to act.
+- **See your repo as a 3D Hivemind** — clusters, hot spots, connected files, and isolated areas
+- **Click any node** and light up its connected paths
+- **Run Hunter** to surface orphan candidates, missing links, and hotspots
+- **Use Trace** to jump from a finding straight to the node
+- **Ask Claude Code** with focused graph context instead of dumping the whole repo — read-only, with your approval
+
+## Quick start (3 commands)
+
+```bash
+uv tool install graphifyy                      # 1. the Graphify scanner (one time; or: pipx install graphifyy)
+graphify update .                              # 2. graph this repo  ->  graphify-out/graph.json
+python scripts/start_graphify_dashboard.py     # 3. open the printed URL (http://127.0.0.1:8787/...)
+```
+
+> Have Claude Code open? Skip the commands — paste the prompt from
+> [Using it with Claude Code](#using-it-with-claude-code-the-one-connector) and it does every step.
+> Full walkthrough + manual fallback in [Quick start](#quick-start) below.
 
 ## See it in action
 
-GraphiQuest maps a repo with Graphify, renders it as a Hivemind, and lets Hunter guide you
-from a finding directly to the code node that matters.
-
-> The Hivemind shots use an **example public repo graph**
-> ([fastapi/fastapi](https://github.com/fastapi/fastapi)) to show the dense 3D view —
-> not GraphiQuest's own source. Point GraphiQuest at any repo of yours.
+> The Hivemind shots use an **example public repo graph** ([fastapi/fastapi](https://github.com/fastapi/fastapi))
+> to show the dense 3D view — not GraphiQuest's own source. Point GraphiQuest at any repo of yours.
 
 ![GraphiQuest dashboard](docs/assets/graphiquest-dashboard-hero.png)
 *GraphiQuest dashboard — a local-first codebase map built on Graphify, with Hivemind, Hunter, Trace, context savings, and Claude Code connection status in one view.*
 
-![Find the node that matters](docs/assets/graphiquest-hivemind-node-selected.png)
-*Find the node that matters — Hunter surfaces the signal, Trace jumps into the Hivemind, and GraphiQuest lights the connected code path.*
+## The needle-in-a-haystack problem
 
-## Why GraphiQuest
-
-- **3D Hivemind view** — see your repo as clusters, paths, hot nodes, and disconnected areas.
-- **Click any node** — inspect degree, neighbors, connected files, and jump context.
-- **Hunter mode** — a local, graph-first auditor that finds orphan candidates, missing relationships, hotspots, stale areas, and incomplete flows.
-- **Reports** — every Hunter finding can jump back to the graph node or region.
-- **Trace** — ask for paths, connected files, and node relationships.
-- **Context savings** — compare full-repo context vs focused Graphify graph context.
-- **Claude Code connector** — a read-only MCP server so Claude Code can query the graph, with your approval.
+GraphiQuest is built for the **"needle in a haystack"** problem in AI-assisted codebases. Instead of asking a
+model to blindly read everything, **Graphify maps the repo first**. GraphiQuest turns that map into a Hivemind
+you can explore, query, and audit; **Hunter** flags disconnected areas, orphan candidates, likely missing
+relationships, and incomplete flows; and when something looks suspicious, **Trace** jumps you straight to the
+node and its connected path before you ask Claude Code to act.
 
 ## Built on Graphify
 
