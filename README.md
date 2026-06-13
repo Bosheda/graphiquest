@@ -15,28 +15,30 @@ no credentials, and no agent calls.
 > Status: early but usable — read-only; your code is never modified or uploaded.
 > Built to be **independently usable** and not tied to any host application.
 
+## The needle-in-a-haystack problem
+
+GraphiQuest is built for the **"needle in a haystack"** problem in AI-assisted codebases.
+
+Instead of asking a model to blindly read everything, **Graphify maps the repo first**.
+GraphiQuest turns that map into a **Hivemind** you can explore, query, and audit. **Hunter**
+looks for disconnected areas, orphan candidates, likely missing relationships, and
+incomplete flows. When something looks suspicious, **Trace** jumps you straight back into
+the graph so you can inspect the node and its connected path before asking Claude Code to act.
+
 ## See it in action
 
-> The Hivemind shots below are an **example public-repo graph** ([fastapi/fastapi](https://github.com/fastapi/fastapi)),
-> used to show the dense 3D view — not GraphiQuest's own source. Point GraphiQuest at any repo of yours.
+GraphiQuest maps a repo with Graphify, renders it as a Hivemind, and lets Hunter guide you
+from a finding directly to the code node that matters.
 
-![3D Hivemind overview](docs/assets/graphiquest-hivemind-overview.png)
-*3D Hivemind overview — example public repo graph.*
+> The Hivemind shots use an **example public repo graph**
+> ([fastapi/fastapi](https://github.com/fastapi/fastapi)) to show the dense 3D view —
+> not GraphiQuest's own source. Point GraphiQuest at any repo of yours.
 
-![Selected node zoom](docs/assets/graphiquest-hivemind-node-selected.png)
-*Selected node zoom — GraphiQuest jumps into the graph and lights connected paths.*
+![GraphiQuest dashboard](docs/assets/graphiquest-dashboard-hero.png)
+*GraphiQuest dashboard — a local-first codebase map built on Graphify, with Hivemind, Hunter, Trace, context savings, and Claude Code connection status in one view.*
 
-![Hunter report](docs/assets/graphiquest-hunter-report.png)
-*Hunter report — local graph-first findings with jump-back actions.*
-
-![Context savings](docs/assets/graphiquest-context-savings.png)
-*Context savings — focused graph context instead of dumping the whole repo.*
-
-![2D Explorer](docs/assets/graphiquest-2d-explorer.png)
-*2D Explorer — structural slices with generic, repo-agnostic categories.*
-
-![Claude Code connector](docs/assets/graphiquest-claude-code-connector.png)
-*Claude Code connector — an optional read-only MCP server; honest status, never a fake "connected".*
+![Find the node that matters](docs/assets/graphiquest-hivemind-node-selected.png)
+*Find the node that matters — Hunter surfaces the signal, Trace jumps into the Hivemind, and GraphiQuest lights the connected code path.*
 
 ## Why GraphiQuest
 
