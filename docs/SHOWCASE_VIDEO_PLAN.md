@@ -34,21 +34,27 @@ by safishamsi (MIT) — keep that attribution in the closing frame.
 > GraphiQuest maps your repo with Graphify, visualizes it in Hivemind, and helps you
 > hunt what matters.
 
-## Scene list
+## Scene list (12 shots)
+
+> Capture order matters: **set the capture viewport size first, then reset/centre the
+> Hivemind**, and only start recording once the brain is centered. Use a **large public
+> repo** (e.g. `vercel/next.js`) for a dense Hivemind — caption it as an example public
+> repo graph, never as GraphiQuest's own source.
 
 | # | Scene | On-screen caption | Duration |
 |---|-------|-------------------|----------|
 | 1 | Open GraphiQuest (clean dashboard) | "GraphiQuest — local-first" | 3s |
-| 2 | Load a repo graph (counts populate) | "Scan any repo with Graphify" | 5s |
-| 3 | 3D Hivemind slow orbit | "Your codebase as a 3D brain" | 8s |
-| 4 | Type *jump to <file>* → camera flight + select + zoom | "Jump to any file — its connections light up" | 8s |
-| 5 | Switch to 2D Explorer | "Structural 2D view" | 6s |
-| 6 | Run Hunter | "Hunter audits the graph" | 6s |
-| 7 | Open Reports (findings table) | "Orphans · leaves · hotspots" | 6s |
-| 8 | Click a finding → jump back to the node | "One click from finding to node" | 6s |
-| 9 | Run context-savings check | "~99% fewer tokens than feeding the whole repo (estimated)" | 6s |
-| 10 | Show Claude Code connector (read-only) | "Optional, read-only, honest status" | 6s |
-| 11 | Closing tagline + logo | "Maps with Graphify · Visualizes in Hivemind · Hunt what matters" | 6s |
+| 2 | Load a repo | "Scan any repo with Graphify" | 5s |
+| 3 | 3D Hivemind slow orbit (centered) | "Your codebase as a 3D brain" | 8s |
+| 4 | Click a strong, central node and zoom in | "Jump to the node that matters" | 7s |
+| 5 | Show the selected-node card + connected files | "Degree · neighbors · connected files" | 6s |
+| 6 | Switch to 2D Explorer | "Structural 2D view" | 6s |
+| 7 | Run Hunter | "Hunter audits the graph" | 6s |
+| 8 | Open Reports (findings table) | "Orphans · leaves · hotspots" | 6s |
+| 9 | Click a finding → jump back to the node | "One click from finding to node" | 6s |
+| 10 | Run Context Savings | "~99% fewer tokens than dumping the whole repo (estimated)" | 6s |
+| 11 | Show Claude Code connector (read-only) | "Optional, read-only, honest status" | 6s |
+| 12 | Closing tagline + logo | **"Map the repo. Hunt the signal. Jump to the node that matters."** | 6s |
 
 ## On-screen captions (style)
 
@@ -67,14 +73,16 @@ by safishamsi (MIT) — keep that attribution in the closing frame.
 - [ ] Connector shown honestly (setup-required or current-session-true only).
 - [ ] Savings labeled **estimated** (or measured) honestly.
 
-## Recommended tools (all free)
+## Recommended tools
 
-- **Capture:** Playwright (`page.video` / scripted interactions) for clean,
-  repeatable, chrome-free recording; or OBS **Window Capture (WGC method)** if you
-  prefer manual driving (never desktop/gdigrab capture — it leaks overlapping windows).
-- **Voiceover:** Chatterbox (MIT, local) or your own recording.
-- **Captions:** whisper.cpp (`-osrt`) → burned-in via ffmpeg.
-- **Assemble/encode:** ffmpeg (one-pass overlay + caption burn) or DaVinci Resolve (free).
+- **Record:** **OBS Studio** (free) — use *Window Capture (WGC method)* so only the
+  dashboard is captured, never the desktop/taskbar (avoid desktop/gdigrab capture — it
+  leaks overlapping windows). Or **Playwright** (`page.video`, scripted) for clean,
+  repeatable, chrome-free capture.
+- **Edit:** **Clipchamp** (free, built into Windows), **CapCut** (free), or
+  **DaVinci Resolve** (free) — trim, add the lower-third captions, and the closing frame.
+- **Voiceover (optional):** Chatterbox (MIT, local) or your own recording.
+- **Captions (optional auto):** whisper.cpp (`-osrt`) → burn in via ffmpeg or your editor.
 
 ## Export settings
 

@@ -1,5 +1,9 @@
 # GraphiQuest
 
+> **GraphiQuest turns any repo into a local 3D Hivemind you can explore, audit, and query.**
+>
+> Map the repo with Graphify. Explore it in Hivemind. Run Hunter. Jump to the node that matters.
+
 **GraphiQuest** — a local-first knowledge-graph dashboard for your codebases.
 Scan a repo with the open-source [Graphify](https://github.com/safishamsi/graphify)
 scanner (by [safishamsi](https://github.com/safishamsi), MIT — full credit), then
@@ -11,25 +15,38 @@ no credentials, and no agent calls.
 > Status: early but usable — read-only; your code is never modified or uploaded.
 > Built to be **independently usable** and not tied to any host application.
 
-## Screenshots
+## See it in action
 
-![GraphiQuest Hivemind overview](docs/assets/graphiquest-hivemind-overview.png)
-*Hivemind overview — your codebase as a living 3D molten brain.*
+> The Hivemind shots below are an **example public-repo graph** ([fastapi/fastapi](https://github.com/fastapi/fastapi)),
+> used to show the dense 3D view — not GraphiQuest's own source. Point GraphiQuest at any repo of yours.
 
-![Selected node with graph context](docs/assets/graphiquest-hivemind-node-selected.png)
-*Selected node with graph context — jump to a file and its connections light up.*
+![3D Hivemind overview](docs/assets/graphiquest-hivemind-overview.png)
+*3D Hivemind overview — example public repo graph.*
+
+![Selected node zoom](docs/assets/graphiquest-hivemind-node-selected.png)
+*Selected node zoom — GraphiQuest jumps into the graph and lights connected paths.*
+
+![Hunter report](docs/assets/graphiquest-hunter-report.png)
+*Hunter report — local graph-first findings with jump-back actions.*
+
+![Context savings](docs/assets/graphiquest-context-savings.png)
+*Context savings — focused graph context instead of dumping the whole repo.*
 
 ![2D Explorer](docs/assets/graphiquest-2d-explorer.png)
 *2D Explorer — structural slices with generic, repo-agnostic categories.*
 
-![Hunter report](docs/assets/graphiquest-hunter-report.png)
-*Hunter report — a graph-first audit (orphans, leaves, hotspots) with jump-to-node.*
-
-![Context savings](docs/assets/graphiquest-context-savings.png)
-*Context savings — estimated tokens saved by querying the graph instead of feeding a model the whole repo.*
-
 ![Claude Code connector](docs/assets/graphiquest-claude-code-connector.png)
 *Claude Code connector — an optional read-only MCP server; honest status, never a fake "connected".*
+
+## Why GraphiQuest
+
+- **3D Hivemind view** — see your repo as clusters, paths, hot nodes, and disconnected areas.
+- **Click any node** — inspect degree, neighbors, connected files, and jump context.
+- **Hunter mode** — a local, graph-first auditor that finds orphan candidates, missing relationships, hotspots, stale areas, and incomplete flows.
+- **Reports** — every Hunter finding can jump back to the graph node or region.
+- **Trace** — ask for paths, connected files, and node relationships.
+- **Context savings** — compare full-repo context vs focused Graphify graph context.
+- **Claude Code connector** — a read-only MCP server so Claude Code can query the graph, with your approval.
 
 ## Built on Graphify
 
@@ -52,6 +69,28 @@ Hunter, Reports, Trace, the token-savings proof, the read-only MCP server, and t
 - Graphify is used as an **external CLI dependency** — its source is not bundled here,
   so no Graphify license text needs to ship with GraphiQuest. Full credit for the
   scanning/graph engine goes to its author. See [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
+
+## Hunter mode
+
+Hunter is the "find the needle in the haystack" layer.
+
+It works from the **local Graphify graph first**, then surfaces:
+
+- orphan candidates
+- disconnected groups
+- likely missing relationships
+- hotspots (high-blast-radius files)
+- stale or incomplete areas
+- files that deserve inspection before you ask Claude to edit anything
+
+Reports are **clickable**: open a finding, jump back to the Hivemind, and land on the
+node or broken path.
+
+Honest by design:
+
+- **Local graph-first** — built from your local graph; no cloud, no upload.
+- **Conservative wording** — findings are framed as *candidate / possible / inspect*; they are **not proof of bugs by themselves**.
+- **Claude Code enrichment is optional and user-approved** — one bounded, read-only call per click, never automatic.
 
 ---
 
