@@ -8,11 +8,28 @@ audit it with **Hunter**, read findings in **Reports**, **Trace** paths between
 files, and ask it questions — all answered from the local graph, with no cloud,
 no credentials, and no agent calls.
 
-> Status: working pre-release. A standalone **graphiquest** repo is planned. It is
-> built to be **independently usable** and is not tied to any host application.
+> Status: early but usable — read-only; your code is never modified or uploaded.
+> Built to be **independently usable** and not tied to any host application.
 
-> **Note:** the public `graphiquest` repository is **pending release** — clone
-> URLs below point at the intended location and will work once it is published.
+## Screenshots
+
+![GraphiQuest Hivemind overview](docs/assets/graphiquest-hivemind-overview.png)
+*Hivemind overview — your codebase as a living 3D molten brain.*
+
+![Selected node with graph context](docs/assets/graphiquest-hivemind-node-selected.png)
+*Selected node with graph context — jump to a file and its connections light up.*
+
+![2D Explorer](docs/assets/graphiquest-2d-explorer.png)
+*2D Explorer — structural slices with generic, repo-agnostic categories.*
+
+![Hunter report](docs/assets/graphiquest-hunter-report.png)
+*Hunter report — a graph-first audit (orphans, leaves, hotspots) with jump-to-node.*
+
+![Context savings](docs/assets/graphiquest-context-savings.png)
+*Context savings — estimated tokens saved by querying the graph instead of feeding a model the whole repo.*
+
+![Claude Code connector](docs/assets/graphiquest-claude-code-connector.png)
+*Claude Code connector — an optional read-only MCP server; honest status, never a fake "connected".*
 
 ## Built on Graphify
 
